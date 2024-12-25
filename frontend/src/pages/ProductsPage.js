@@ -8,13 +8,14 @@ function ProductsPage() {
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
-    axios.get(`http://127.0.0.1:3001/products/category/${id}/products`)
-      .then((response) => {
-        setProducts(response.data);
-      })
-      .catch((error) => {
-        console.error("There was an error fetching the products!", error);
-      });
+    axios.get(`http://127.0.0.1:3001/products/category/${id}`)
+  .then((response) => {
+    setProducts(response.data);
+  })
+  .catch((error) => {
+    console.error("There was an error fetching the products!", error);
+  });
+
   }, [id]);
 
   return (
