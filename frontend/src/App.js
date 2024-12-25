@@ -1,23 +1,20 @@
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.min.js';
 import './App.css';
-import axios from "axios";
-import { useEffect, useState } from 'react';
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import CategoriesPage from './pages/CategoriesPage';
+import ProductsPage from './pages/ProductsPage';
 
 function App() {
-
-  const [listOfProducts, setListOfProducts] = useState([]);
-
-  useEffect(() => {
-    axios.get("http://127.0.0.1:3001/products").then((response) => {
-      setListOfProducts(response.data);
-    });
-  }, []);
-
   return (
-    <div className="App">
-      {listOfProducts.map((value, key) => {
-        return <div key={key}>{value.name}</div>;
-      })}
-    </div>
+    <Router>
+      <div className="App">
+        <Routes>
+          <Route path="/" element={<CategoriesPage />} />
+          <Route path="/category/:id" element={<ProductsPage />} />
+        </Routes>
+      </div>
+    </Router>
   );
 }
 

@@ -1,16 +1,11 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const {Products}= require("../models");
+const productsController = require("../controllers/productsController");
 
-router.get('/',async(req,res)=>{
-    const listOfProducts= await Products.findAll();    
-    res.json(listOfProducts);
-});
+// Get products by category
+router.get("/category/:id/products", productsController.getProductsByCategory);
 
-router.post("/", async(req,res)=>{
-    const product = req.body;
-    await Products.create(product);
-    res.json(product);
-});
+// Create a new product
+router.post("/create-product", productsController.createProduct);
 
-module.exports = router
+module.exports = router;
