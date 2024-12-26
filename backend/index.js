@@ -3,9 +3,19 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const dotenv = require("dotenv");
 const db = require("./config/database");
-const Products = require("./models/Product");
+
+// Import all models
+const User = require("./models/User");
+const Admin = require("./models/Admin");
 const Category = require("./models/Category");
-const CategorizedProduct = require("./models/CategorizedProduct");
+const Product = require("./models/Product");
+const Cart = require("./models/Cart");
+const CartItem = require("./models/CartItem");
+const Order = require("./models/Order");
+const OrderItem = require("./models/OrderItem");
+const Payment = require("./models/Payment");
+const Shipping = require("./models/Shipping");
+const Return = require("./models/Return");
 
 // Import associations
 require("./models/associations");
@@ -35,6 +45,8 @@ app.use("/products", productsRoute); // Product routes
 app.get("/", (req, res) => {
   res.send("Welcome to the E-Commerce API");
 });
+
+
 
 // Ensure models are initialized and start the server
 db.sequelize.sync({ force: false }) // Set force to true if you want to drop and recreate tables on every sync

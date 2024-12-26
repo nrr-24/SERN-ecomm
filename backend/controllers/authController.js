@@ -1,6 +1,8 @@
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const Admin = require("../models/Admin");
+
 
 exports.register = async (req, res) => {
   try {
@@ -35,37 +37,49 @@ exports.register = async (req, res) => {
 };
 
 exports.login = async (req, res) => {
+  const { email, password } = req.body;
+
   try {
-    // Validate input
-    const { email, password } = req.body;
-    if (!email || !password) {
-      return res.status(400).json({ error: "Email and password are required" });
-    }
+      // Check in Admin table
+      let user = await Admin.findOne({ where: { Email: email } });
+      if (user) {
+          console.log("Admin found:", user);
 
-    // Find user by email
-    const user = await User.findOne({ where: { email } });
-    if (!user) {
-      return res.status(401).json({ error: "Invalid email or password" });
-    }
+          const isPasswordMatch = await bcrypt.compare(password, user.Password);
+          console.log("Password Match (Admin):", isPasswordMatch);
 
-    // Check password
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      return res.status(401).json({ error: "Invalid email or password" });
-    }
+          if (!isPasswordMatch) {
+              return res.status(401).json({ message: "Invalid email or password" });
+          }
 
-    // Generate JWT token
-    const token = jwt.sign(
-      { userId: user.userId, email: user.email },
-      process.env.JWT_SECRET,
-      { expiresIn: "1h" }
-    );
+          const token = jwt.sign({ id: user.AdminID, isAdmin: true }, process.env.JWT_SECRET, { expiresIn: "1h" });
+          return res.status(200).json({ message: "Login successful", token, isAdmin: true });
+      }
 
-    res.status(200).json({ message: "Login successful", token });
+      // Check in User table
+      user = await User.findOne({ where: { email } });
+      if (user) {
+          console.log("User found:", user);
+
+          const isPasswordMatch = await bcrypt.compare(password, user.password);
+          console.log("Password Match (User):", isPasswordMatch);
+
+          if (!isPasswordMatch) {
+              return res.status(401).json({ message: "Invalid email or password" });
+          }
+
+          const token = jwt.sign({ id: user.userId, isAdmin: false }, process.env.JWT_SECRET, { expiresIn: "1h" });
+          return res.status(200).json({ message: "Login successful", token, isAdmin: false });
+      }
+
+      return res.status(404).json({ message: "User not found" });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+      console.error("Login Error:", error);
+      res.status(500).json({ message: "Server error", error });
   }
 };
+
+
 
 exports.logout = async (req, res) => {
   try {

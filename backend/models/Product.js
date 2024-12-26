@@ -19,15 +19,7 @@ const Products = sequelize.define('Products', {
     stock: {
         allowNull: false,
         type: DataTypes.INTEGER
-    },
-    categoryId: {
-        allowNull: false,
-        type: DataTypes.INTEGER,
-    },
-    image: {
-        allowNull: false,
-        type: DataTypes.STRING
-    },
+    }
 });
-
+//take away image and make categoryid just a foreign key
 module.exports = Products;

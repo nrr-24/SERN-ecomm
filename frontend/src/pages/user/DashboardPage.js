@@ -38,7 +38,7 @@ function Dashboard() {
 
       {/* Welcome Message */}
       <div className="container mt-5 text-center">
-        <h1>Welcome, !</h1>
+        <h1>Welcome, User !</h1>
         <p>This is your dashboard. Use the navigation bar to explore categories and products.</p>
       </div>
     </div>

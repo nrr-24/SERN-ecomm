@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import CategoryList from '../components/CategoryList';
+import CategoryList from '../../components/CategoryList';
 
 function CategoriesPage() {
   const [categories, setCategories] = useState([]);
@@ -8,7 +8,11 @@ function CategoriesPage() {
   useEffect(() => {
     axios.get("http://127.0.0.1:3001/categories")
       .then((response) => {
-        setCategories(response.data);
+        if (response.data && response.data.categories) {
+          setCategories(response.data.categories); // Extract the nested categories array
+        } else {
+          console.error("Unexpected response structure:", response.data);
+        }
       })
       .catch((error) => {
         console.error("There was an error fetching the categories!", error);

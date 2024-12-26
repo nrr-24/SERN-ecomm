@@ -15,12 +15,19 @@ function LoginPage() {
         email,
         password,
       });
-      // Assume JWT token is stored in localStorage
+
+      // Store the JWT token in localStorage
       localStorage.setItem("token", response.data.token);
-      navigate("/"); // Redirect to a dashboard or home page
+
+      // Check if the user is an admin or a regular user
+      if (response.data.isAdmin) {
+        navigate("/dashboard"); // Redirect to admin dashboard
+      } else {
+        navigate("/home"); // Redirect to user home page
+      }
     } catch (error) {
       if (error.response && error.response.data) {
-        setErrors([error.response.data.error]);
+        setErrors([error.response.data.message]);
       } else {
         setErrors(["An unknown error occurred"]);
       }
