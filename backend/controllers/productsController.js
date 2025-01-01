@@ -14,7 +14,7 @@ exports.getAllProducts = async (req, res) => {
 exports.getProductsByCategory = async (req, res) => {
   const { id } = req.params;
   try {
-    const products = await Products.findAll({ where: { categoryId: id } });
+    const products = await Products.findAll({ where: { Category_ID: id } });
     res.json(products);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -35,7 +35,7 @@ exports.createProduct = async (req, res) => {
 // Update a product
 exports.updateProduct = async (req, res) => {
   const { id } = req.params;
-  const { name, description, price, categoryId } = req.body;
+  const { name, description, price, Category_ID } = req.body;
 
   try {
     const product = await Products.findByPk(id);
@@ -47,7 +47,7 @@ exports.updateProduct = async (req, res) => {
     product.name = name || product.name;
     product.description = description || product.description;
     product.price = price || product.price;
-    product.categoryId = categoryId || product.categoryId;
+    product.Category_ID = Category_ID || product.Category_ID;
 
     await product.save(); // Save changes
     res.status(200).json({ message: "Product updated successfully", product });

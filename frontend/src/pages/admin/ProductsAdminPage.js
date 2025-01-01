@@ -7,44 +7,42 @@ function ProductsAdminPage() {
     name: "",
     description: "",
     price: "",
-    categoryId: "",
+    Category_ID: "",
   });
-  const [editingProduct, setEditingProduct] = useState(null);
 
+  // Fetch products for admin on component load
   useEffect(() => {
-    fetchProductsForAdmin();
+    fetchProducts();
   }, []);
 
-  const fetchProductsForAdmin = () => {
+  const fetchProducts = () => {
     const token = localStorage.getItem("token"); // Retrieve token from localStorage
     axios
       .get("http://127.0.0.1:3001/products/admin", {
         headers: { Authorization: `Bearer ${token}` }, // Pass token in headers
       })
       .then((response) => {
-        setProducts(response.data.products);
+        setProducts(response.data.products); // Response structure based on getAllProductsForAdmin
       })
       .catch((error) => {
-        console.error("There was an error fetching the products!", error);
+        console.error("There was an error fetching the products for admin!", error);
       });
   };
 
   const handleAddProduct = () => {
-    if (!newProduct.name || !newProduct.description || !newProduct.price || !newProduct.categoryId) {
+    if (!newProduct.name || !newProduct.description || !newProduct.price || !newProduct.Category_ID) {
       alert("Please fill all the fields.");
       return;
     }
 
     const token = localStorage.getItem("token"); // Retrieve token from localStorage
     axios
-      .post(
-        "http://127.0.0.1:3001/products/admin/create-product",
-        newProduct,
-        { headers: { Authorization: `Bearer ${token}` } } // Pass token in headers
-      )
+      .post("http://127.0.0.1:3001/products/admin/create", newProduct, {
+        headers: { Authorization: `Bearer ${token}` }, // Pass token in headers
+      })
       .then(() => {
-        setNewProduct({ name: "", description: "", price: "", categoryId: "" });
-        fetchProductsForAdmin();
+        setNewProduct({ name: "", description: "", price: "", Category_ID: "" }); // Clear input fields
+        fetchProducts(); // Refresh the product list
         alert("Product added successfully!");
       })
       .catch((error) => {
@@ -54,38 +52,46 @@ function ProductsAdminPage() {
   };
 
   const handleUpdateProduct = (productId) => {
-    if (!editingProduct.name || !editingProduct.description || !editingProduct.price || !editingProduct.categoryId) {
-      alert("Please fill all the fields.");
-      return;
-    }
+    const updatedName = prompt("Enter new product name:");
+    const updatedDescription = prompt("Enter new product description:");
+    const updatedPrice = prompt("Enter new product price:");
+    const updatedCategoryId = prompt("Enter new Category ID:");
 
-    const token = localStorage.getItem("token"); // Retrieve token from localStorage
-    axios
-      .put(
-        `http://127.0.0.1:3001/products/admin/update-product/${productId}`,
-        editingProduct,
-        { headers: { Authorization: `Bearer ${token}` } } // Pass token in headers
-      )
-      .then(() => {
-        setEditingProduct(null);
-        fetchProductsForAdmin();
-        alert("Product updated successfully!");
-      })
-      .catch((error) => {
-        console.error("There was an error updating the product!", error);
-        alert("Failed to update product.");
-      });
+    if (updatedName && updatedDescription && updatedPrice && updatedCategoryId) {
+      const token = localStorage.getItem("token"); // Retrieve the token
+      axios
+        .put(
+          `http://127.0.0.1:3001/products/admin/update/${productId}`,
+          {
+            name: updatedName,
+            description: updatedDescription,
+            price: updatedPrice,
+            Category_ID: updatedCategoryId,
+          },
+          {
+            headers: { Authorization: `Bearer ${token}` }, // Add the token
+          }
+        )
+        .then(() => {
+          fetchProducts(); // Refresh the list after update
+          alert("Product updated successfully!");
+        })
+        .catch((error) => {
+          console.error("There was an error updating the product!", error);
+          alert("Failed to update product.");
+        });
+    }
   };
 
   const handleDeleteProduct = (productId) => {
     if (window.confirm("Are you sure you want to delete this product?")) {
-      const token = localStorage.getItem("token"); // Retrieve token from localStorage
+      const token = localStorage.getItem("token"); // Retrieve the token
       axios
-        .delete(`http://127.0.0.1:3001/products/admin/delete-product/${productId}`, {
-          headers: { Authorization: `Bearer ${token}` }, // Pass token in headers
+        .delete(`http://127.0.0.1:3001/products/admin/delete/${productId}`, {
+          headers: { Authorization: `Bearer ${token}` }, // Add the token
         })
         .then(() => {
-          fetchProductsForAdmin();
+          fetchProducts(); // Refresh the list after deletion
           alert("Product deleted successfully!");
         })
         .catch((error) => {
@@ -125,8 +131,8 @@ function ProductsAdminPage() {
         <input
           type="text"
           placeholder="Category ID"
-          value={newProduct.categoryId}
-          onChange={(e) => setNewProduct({ ...newProduct, categoryId: e.target.value })}
+          value={newProduct.Category_ID}
+          onChange={(e) => setNewProduct({ ...newProduct, Category_ID: e.target.value })}
           className="form-control mb-2"
         />
         <button className="btn btn-success" onClick={handleAddProduct}>
@@ -136,62 +142,37 @@ function ProductsAdminPage() {
 
       {/* Display Products */}
       <div className="list-group">
-        {products.map((product) => (
-          <div key={product.productId} className="list-group-item d-flex justify-content-between align-items-center">
-            <div>
-              {editingProduct && editingProduct.productId === product.productId ? (
-                <div>
-                  <input
-                    type="text"
-                    value={editingProduct.name}
-                    onChange={(e) => setEditingProduct({ ...editingProduct, name: e.target.value })}
-                    className="form-control mb-2"
-                  />
-                  <textarea
-                    value={editingProduct.description}
-                    onChange={(e) => setEditingProduct({ ...editingProduct, description: e.target.value })}
-                    className="form-control mb-2"
-                  />
-                  <input
-                    type="number"
-                    value={editingProduct.price}
-                    onChange={(e) => setEditingProduct({ ...editingProduct, price: e.target.value })}
-                    className="form-control mb-2"
-                  />
-                  <input
-                    type="text"
-                    value={editingProduct.categoryId}
-                    onChange={(e) => setEditingProduct({ ...editingProduct, categoryId: e.target.value })}
-                    className="form-control mb-2"
-                  />
-                  <button className="btn btn-primary btn-sm mx-1" onClick={() => handleUpdateProduct(product.productId)}>
-                    Save
-                  </button>
-                  <button className="btn btn-secondary btn-sm mx-1" onClick={() => setEditingProduct(null)}>
-                    Cancel
-                  </button>
-                </div>
-              ) : (
-                <div>
-                  <h5>{product.name}</h5>
-                  <p>{product.description}</p>
-                  <p>Price: ${product.price}</p>
-                  <p>Category ID: {product.categoryId}</p>
-                </div>
-              )}
-            </div>
-            {!editingProduct && (
+        {products.length === 0 ? (
+          <p>No products found</p>
+        ) : (
+          products.map((product) => (
+            <div
+              key={product.productId}
+              className="list-group-item d-flex justify-content-between align-items-center"
+            >
               <div>
-                <button className="btn btn-primary btn-sm mx-1" onClick={() => setEditingProduct(product)}>
-                  Edit
+                <h5>{product.name}</h5>
+                <p>{product.description}</p>
+                <p>Price: ${product.price}</p>
+                <p>Category ID: {product.Category_ID}</p>
+              </div>
+              <div>
+                <button
+                  className="btn btn-primary btn-sm mx-1"
+                  onClick={() => handleUpdateProduct(product.productId)}
+                >
+                  Update
                 </button>
-                <button className="btn btn-danger btn-sm mx-1" onClick={() => handleDeleteProduct(product.productId)}>
+                <button
+                  className="btn btn-danger btn-sm mx-1"
+                  onClick={() => handleDeleteProduct(product.productId)}
+                >
                   Delete
                 </button>
               </div>
-            )}
-          </div>
-        ))}
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

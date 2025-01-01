@@ -12,10 +12,6 @@ const Return = sequelize.define("Return", {
         allowNull: false,
         defaultValue: DataTypes.NOW
     },
-    Reason: {
-        type: DataTypes.TEXT,
-        allowNull: false
-    },
     Status: {
         type: DataTypes.STRING,
         allowNull: false
